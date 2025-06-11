@@ -1,0 +1,43 @@
+# Ignore virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+# Log files
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Ignore large files / models
+*.pt
+*.pth
+*.pkl
+*.bin
+models/
+checkpoints/
+en_core_web_lg/
+
+# Ignore compiled extensions
+*.so
+*.dll
+*.lib
+*.pyd
+
+# Ignore VSCode and PyCharm settings
+.vscode/
+.idea/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Pip dependency files
+pip-wheel-metadata/
