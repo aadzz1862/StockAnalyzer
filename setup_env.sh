@@ -10,12 +10,12 @@ fi
 source venv/bin/activate
 
 # Ensure pip is up to date
-pip install --upgrade pip
+python -m pip install --upgrade pip
 
 # Install dependencies
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 
 # Initialize the database
-python init_db.py
+python3 init_db.py
 
 echo "Environment setup complete."

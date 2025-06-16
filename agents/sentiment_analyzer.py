@@ -1,35 +1,46 @@
 # agents/sentiment_analyzer.py
 
 from transformers import pipeline
+import re
 
 class SentimentAnalyzer:
     def __init__(self):
-        # Load FinBERT from local path
-        self.sentiment_pipeline = pipeline(
-            "sentiment-analysis",
-            model="./models/finbert",      # Load local model
-            tokenizer="./models/finbert"
-        )
+        """Try to load FinBERT; fall back to simple rule-based sentiment."""
+        try:
+            self.sentiment_pipeline = pipeline(
+                "sentiment-analysis",
+                model="./models/finbert",
+                tokenizer="./models/finbert"
+            )
+            self.use_model = True
+        except Exception:
+            self.use_model = False
+            self.positive_words = {"good", "great", "positive", "up", "gain"}
+            self.negative_words = {"bad", "poor", "negative", "down", "loss"}
 
     def analyze_sentiment(self, text):
         if not text.strip():
             return {"label": "neutral", "score": 0.0}
         
-        # Get all scores for each label
-        result = self.sentiment_pipeline(text[:512], top_k=None)
-
-
-        # Map label probabilities
-        probs = {r['label'].lower(): r['score'] for r in result}
-        positive = probs.get('positive', 0.0)
-        negative = probs.get('negative', 0.0)
-        neutral = probs.get('neutral', 0.0)
-
-        # Compute sentiment score: positive - negative
-        sentiment_score = round(positive - negative, 3)
-
-        # Choose label with highest probability
-        label = max(probs, key=probs.get)
+        if self.use_model:
+            result = self.sentiment_pipeline(text[:512], top_k=None)
+            probs = {r['label'].lower(): r['score'] for r in result}
+            positive = probs.get('positive', 0.0)
+            negative = probs.get('negative', 0.0)
+            neutral = probs.get('neutral', 0.0)
+            sentiment_score = round(positive - negative, 3)
+            label = max(probs, key=probs.get)
+        else:
+            tokens = re.findall(r"\b\w+\b", text.lower())
+            pos_count = sum(word in self.positive_words for word in tokens)
+            neg_count = sum(word in self.negative_words for word in tokens)
+            sentiment_score = pos_count - neg_count
+            if sentiment_score > 0:
+                label = "positive"
+            elif sentiment_score < 0:
+                label = "negative"
+            else:
+                label = "neutral"
 
         return {
             "label": label,
